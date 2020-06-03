@@ -1,18 +1,20 @@
 package dev.jlibra.client.views;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 @Value.Immutable
-@JsonDeserialize(as = ImmutableCurrencyInfoView.class)
-public interface CurrencyInfoView {
+@JsonDeserialize(as = ImmutableCurrencyInfo.class)
+public interface CurrencyInfo {
+
     @JsonProperty("code")
     String code();
 
-    @JsonProperty("scaling_factor")
-    Long scalingFactor();
-
     @JsonProperty("fractional_part")
     Long fractionalPart();
+
+    @JsonProperty("scaling_factor")
+    Long scalingFactor();
 }

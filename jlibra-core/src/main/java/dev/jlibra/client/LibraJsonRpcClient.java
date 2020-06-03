@@ -11,7 +11,6 @@ import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcMethod;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcOptional;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcParam;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcService;
-
 import dev.jlibra.client.views.*;
 
 @JsonRpcService
@@ -47,9 +46,9 @@ public interface LibraJsonRpcClient {
     @JsonRpcMethod("get_state_proof")
     StateProof getStateProof(@JsonRpcParam("know_version") long knownVersion);
 
+    @JsonRpcMethod("currencies_info")
+    List<CurrencyInfo> currenciesInfo();
+
     @JsonRpcMethod("submit")
     void submit(@JsonRpcParam("payload") String payload);
-
-    @JsonRpcMethod("currencies_info")
-    List<CurrencyInfoView> currenciesInfo();
 }

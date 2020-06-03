@@ -13,6 +13,7 @@ import com.github.arteam.simplejsonrpc.client.exception.JsonRpcException;
 
 import dev.jlibra.AccountAddress;
 import dev.jlibra.LibraRuntimeException;
+
 import dev.jlibra.serialization.lcs.LCSSerializer;
 import dev.jlibra.transaction.SignedTransaction;
 
@@ -50,15 +51,6 @@ public class LibraClient {
         }
     }
 
-    public List<CurrencyInfoView> currenciesInfo() {
-        try {
-            return libraJsonRpcClient.currenciesInfo();
-        } catch (JsonRpcException e) {
-            throw new LibraServerErrorException(e.getErrorMessage().getCode(), e.getErrorMessage().getMessage());
-        } catch (Exception e) {
-            throw new LibraRuntimeException("currenciesInfo failed", e);
-        }
-    }
     public BlockMetadata getMetadata() {
         try {
             return libraJsonRpcClient.getMetadata();
@@ -112,6 +104,16 @@ public class LibraClient {
             throw new LibraServerErrorException(e.getErrorMessage().getCode(), e.getErrorMessage().getMessage());
         } catch (Exception e) {
             throw new LibraRuntimeException("getStateProof failed", e);
+        }
+    }
+
+    public List<CurrencyInfo> currenciesInfo() {
+        try {
+            return libraJsonRpcClient.currenciesInfo();
+        } catch (JsonRpcException e) {
+            throw new LibraServerErrorException(e.getErrorMessage().getCode(), e.getErrorMessage().getMessage());
+        } catch (Exception e) {
+            throw new LibraRuntimeException("currenciesInfo failed", e);
         }
     }
 
