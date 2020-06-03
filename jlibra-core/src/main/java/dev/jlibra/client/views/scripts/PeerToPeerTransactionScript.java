@@ -1,4 +1,4 @@
-package dev.jlibra.client.views;
+package dev.jlibra.client.views.scripts;
 
 import org.immutables.value.Value;
 

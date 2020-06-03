@@ -10,12 +10,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public interface StateProof {
 
     @JsonProperty("ledger_consistency_proof")
-    String ledgetConsistencyProof();
+    String ledgerConsistencyProof();
 
     @JsonProperty("ledger_info_with_signatures")
     String ledgerInfoWithSignatures();
 
-    @JsonProperty("validator_change_proof")
-    String validatorChangeProof();
+    @JsonProperty("epoch_change_proof")
+    String epochChangeProof();
 
 }

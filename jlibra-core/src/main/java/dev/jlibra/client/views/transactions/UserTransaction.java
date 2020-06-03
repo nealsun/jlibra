@@ -1,5 +1,6 @@
-package dev.jlibra.client.views;
+package dev.jlibra.client.views.transactions;
 
+import dev.jlibra.client.views.scripts.Script;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

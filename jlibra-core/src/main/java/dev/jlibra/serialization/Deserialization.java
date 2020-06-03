@@ -9,6 +9,10 @@ import dev.jlibra.LibraRuntimeException;
 
 public class Deserialization {
 
+    private final static int BITS_LONG = 64;
+    private final static int MASK_DATA = 0x7f;
+    private final static int MASK_CONTINUE = 0x80;
+
     public static int readInt(InputStream in, int len) {
         byte[] data = readBytes(in, len);
         return ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getInt();
@@ -43,5 +47,25 @@ public class Deserialization {
         } catch (IOException e) {
             throw new LibraRuntimeException("Could not read input stream", e);
         }
+    }
+
+    public static long readLength(InputStream bytes) throws IOException {
+        long value = 0;
+        int bitSize = 0;
+        int read;
+
+        do {
+            if ((read = bytes.read()) == -1) {
+                throw new IOException("Unexpected EOF");
+            }
+
+            value += ((long) read & MASK_DATA) << bitSize;
+            bitSize += 7;
+            if (bitSize >= BITS_LONG) {
+                throw new ArithmeticException("ULEB128 value exceeds maximum value for long type.");
+            }
+
+        } while ((read & MASK_CONTINUE) != 0);
+        return value;
     }
 }

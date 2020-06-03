@@ -2,6 +2,7 @@ package dev.jlibra.client.views;
 
 import java.util.List;
 
+import dev.jlibra.client.views.transactions.TransactionData;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

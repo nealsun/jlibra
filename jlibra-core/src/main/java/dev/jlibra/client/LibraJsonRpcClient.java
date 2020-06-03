@@ -8,14 +8,11 @@ import com.github.arteam.simplejsonrpc.client.JsonRpcId;
 import com.github.arteam.simplejsonrpc.client.JsonRpcParams;
 import com.github.arteam.simplejsonrpc.client.generator.SecureRandomStringIdGenerator;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcMethod;
+import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcOptional;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcParam;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcService;
 
-import dev.jlibra.client.views.Account;
-import dev.jlibra.client.views.BlockMetadata;
-import dev.jlibra.client.views.Event;
-import dev.jlibra.client.views.StateProof;
-import dev.jlibra.client.views.Transaction;
+import dev.jlibra.client.views.*;
 
 @JsonRpcService
 @JsonRpcId(SecureRandomStringIdGenerator.class)
@@ -24,6 +21,11 @@ public interface LibraJsonRpcClient {
 
     @JsonRpcMethod("get_account_state")
     Account getAccountState(@JsonRpcParam("address") String address);
+
+    @JsonRpcMethod("get_account_state_with_proof")
+    AccountStateWithProofView getAccountStateWithProof(@JsonRpcParam("address") String address,
+                                                       @JsonRpcOptional @JsonRpcParam("version") Long version,
+                                                       @JsonRpcOptional @JsonRpcParam("ledger_version") Long ledgerVersion);
 
     @JsonRpcMethod("get_metadata")
     BlockMetadata getMetadata();
@@ -48,4 +50,6 @@ public interface LibraJsonRpcClient {
     @JsonRpcMethod("submit")
     void submit(@JsonRpcParam("payload") String payload);
 
+    @JsonRpcMethod("currencies_info")
+    List<CurrencyInfoView> currenciesInfo();
 }
