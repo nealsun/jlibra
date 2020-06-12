@@ -25,10 +25,6 @@ public class Move {
         return readMoveScriptBytes("/move/create_account.mv");
     }
 
-    public static ByteSequence createEmptyAccountAsBytes() {
-        return readMoveScriptBytes("/move/create_empty_account.mv");
-    }
-
     private static ByteSequence readMoveScriptBytes(String fileName) {
         InputStream jsonBinary = Move.class.getResourceAsStream(fileName);
 

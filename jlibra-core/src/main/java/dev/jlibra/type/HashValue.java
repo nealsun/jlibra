@@ -1,5 +1,6 @@
 package dev.jlibra.type;
 
+import dev.jlibra.serialization.ByteArray;
 import dev.jlibra.serialization.ByteSequence;
 import dev.jlibra.serialization.Deserialization;
 import dev.jlibra.serialization.lcs.LCS;
@@ -12,7 +13,7 @@ import java.io.InputStream;
 @LCS.Structure
 public interface HashValue {
     @LCS.Field(value = 0)
-    ByteSequence hash();
+    ByteArray hash();
 
     static HashValue deserializer(InputStream inputStream) throws IOException {
         ImmutableHashValue.Builder builder = ImmutableHashValue.builder();

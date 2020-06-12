@@ -1,5 +1,6 @@
 package dev.jlibra;
 
+import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 
 import dev.jlibra.serialization.ByteArray;

@@ -5,6 +5,7 @@ import dev.jlibra.transaction.NotImplemented;
 
 @ExternallyTaggedEnumeration(classes = { U8Argument.class, U64Argument.class, NotImplemented.class,
         AccountAddressArgument.class,
-        U8VectorArgument.class })
+        U8VectorArgument.class,
+        BoolArgument.class})
 public interface TransactionArgument {
 }
