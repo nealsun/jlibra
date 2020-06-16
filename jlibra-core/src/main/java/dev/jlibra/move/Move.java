@@ -9,16 +9,16 @@ import dev.jlibra.serialization.ByteSequence;
 
 public class Move {
 
-    public static ByteSequence rotateAuthenticationKeyAsBytes() {
+    public static ByteSequence rotateAuthenticationKey() {
         return readMoveScriptBytes("/move/rotate_authentication_key.mv");
     }
 
-    public static ByteSequence peerToPeerTransferAsBytes() {
-        return readMoveScriptBytes("/move/peer_to_peer.mv");
+    public static ByteSequence peerToPeerTransferWithMetadata() {
+        return readMoveScriptBytes("/move/peer_to_peer_with_metadata.mv");
     }
 
-    public static ByteSequence peerToPeerTransferWithMetadataAsBytes() {
-        return readMoveScriptBytes("/move/peer_to_peer_with_metadata.mv");
+    public static ByteSequence createChildVaspAccount() {
+        return readMoveScriptBytes("/move/create_child_vasp_account.mv");
     }
 
     public static ByteSequence createAccountAsBytes() {
@@ -26,10 +26,8 @@ public class Move {
     }
 
     private static ByteSequence readMoveScriptBytes(String fileName) {
-        InputStream jsonBinary = Move.class.getResourceAsStream(fileName);
-
         try {
-            return ByteArray.from(streamToByteArray(jsonBinary));
+            return ByteArray.from(streamToByteArray(Move.class.getResourceAsStream(fileName)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

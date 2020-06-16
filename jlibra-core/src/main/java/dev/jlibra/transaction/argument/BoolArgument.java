@@ -3,6 +3,7 @@ package dev.jlibra.transaction.argument;
 import dev.jlibra.serialization.lcs.LCS;
 
 public class BoolArgument implements TransactionArgument {
+
     private boolean value;
 
     public BoolArgument(boolean value) {
@@ -10,7 +11,7 @@ public class BoolArgument implements TransactionArgument {
     }
 
     @LCS.Field(0)
-    public boolean getValue() {
-        return value;
+    public byte getValue() {
+        return (byte) (value ? 1 : 0);
     }
 }

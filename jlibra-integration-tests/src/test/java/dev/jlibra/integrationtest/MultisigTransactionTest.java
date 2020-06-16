@@ -31,6 +31,7 @@ import dev.jlibra.client.views.Account;
 import dev.jlibra.faucet.Faucet;
 import dev.jlibra.move.Move;
 import dev.jlibra.poller.Wait;
+import dev.jlibra.serialization.ByteArray;
 import dev.jlibra.transaction.ImmutableScript;
 import dev.jlibra.transaction.ImmutableSignedTransaction;
 import dev.jlibra.transaction.ImmutableTransaction;
@@ -40,24 +41,25 @@ import dev.jlibra.transaction.Signature;
 import dev.jlibra.transaction.SignedTransaction;
 import dev.jlibra.transaction.Transaction;
 import dev.jlibra.transaction.argument.AccountAddressArgument;
+import dev.jlibra.transaction.argument.BoolArgument;
 import dev.jlibra.transaction.argument.U64Argument;
 import dev.jlibra.transaction.argument.U8VectorArgument;
 
 public class MultisigTransactionTest {
 
     private static final Logger logger = LoggerFactory.getLogger(MultisigTransactionTest.class);
+    private LibraClient client;
 
     @Before
     public void setUp() {
         Security.addProvider(new BouncyCastleProvider());
+        client = LibraClient.builder()
+                .withUrl("http://client.testnet.libra.org/")
+                .build();
     }
 
     @Test
     public void testMultisigTransaction() {
-        LibraClient client = LibraClient.builder()
-                .withUrl("http://client.testnet.libra.org/")
-                .build();
-
         Faucet faucet = Faucet.builder()
                 .build();
 
@@ -74,6 +76,7 @@ public class MultisigTransactionTest {
 
         // target account
         KeyPair targetAccount = generateKeyPairs(1).get(0);
+        createChildVaspAccount(keyPairs, targetAccount);
         PublicKey publicKeyTarget = PublicKey.fromPublicKey(targetAccount.getPublic());
         AuthenticationKey authenticationKeyTarget = AuthenticationKey.fromPublicKey(publicKeyTarget);
 
@@ -83,14 +86,16 @@ public class MultisigTransactionTest {
         AccountAddressArgument addressArgument = new AccountAddressArgument(
                 AccountAddress.fromAuthenticationKey(authenticationKeyTarget));
 
-        U8VectorArgument authkeyPrefixArgument = new U8VectorArgument(
-                authenticationKeyTarget.toByteArray().subseq(0, 16));
+        U8VectorArgument metadataArgument = new U8VectorArgument(
+                ByteArray.from(new byte[0]));
+        U8VectorArgument signatureArgument = new U8VectorArgument(
+                ByteArray.from(new byte[0]));
 
         logger.info("Sender auth key {}, sender address {}", authenticationKey, accountAddress);
         logger.info("Receiver auth key {}, sender address {}", authenticationKeyTarget,
                 AccountAddress.fromAuthenticationKey(authenticationKeyTarget));
 
-        int sequenceNumber = 0;
+        int sequenceNumber = 1;
         Transaction transaction = ImmutableTransaction.builder()
                 .sequenceNumber(sequenceNumber)
                 .maxGasAmount(2_000_000)
@@ -99,17 +104,13 @@ public class MultisigTransactionTest {
                 .senderAccount(accountAddress)
                 .expirationTime(Instant.now().getEpochSecond() + 60)
                 .payload(ImmutableScript.builder()
-                        .code(Move.peerToPeerTransferAsBytes())
+                        .code(Move.peerToPeerTransferWithMetadata())
                         .typeArguments(Arrays.asList(new LbrTypeTag()))
-                        .addArguments(addressArgument, authkeyPrefixArgument, amountArgument)
+                        .addArguments(addressArgument, amountArgument, metadataArgument, signatureArgument)
                         .build())
                 .build();
 
-        // add 30 signatures, leave out 1st and last signer
-        Signature signature = Signature.newMultisignature();
-        for (int i = 1; i < 31; i++) {
-            signature = Signature.addSignatureToMultiSignature(signature, i, transaction, keyPairs.get(i).getPrivate());
-        }
+        Signature signature = createSignature(keyPairs, transaction);
 
         SignedTransaction signedTransaction = ImmutableSignedTransaction.builder()
                 .authenticator(ImmutableTransactionAuthenticatorMultiEd25519.builder()
@@ -129,12 +130,70 @@ public class MultisigTransactionTest {
         assertThat(targetAccountState.balances().get(0).amount(), is(transferAmount));
     }
 
+    private Signature createSignature(List<KeyPair> keyPairs, Transaction transaction) {
+        // add 30 signatures, leave out 1st and last signer
+        Signature signature = Signature.newMultisignature();
+        for (int i = 1; i < 31; i++) {
+            signature = Signature.addSignatureToMultiSignature(signature, i, transaction, keyPairs.get(i).getPrivate());
+        }
+        return signature;
+    }
+
     private KeyPairGenerator getKeyPairGenerator() {
         try {
             return KeyPairGenerator.getInstance("Ed25519", "BC");
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void createChildVaspAccount(List<KeyPair> keyPairs, KeyPair childVaspAccountKeyPair) {
+        MultiSignaturePublicKey multiPubKey = MultiSignaturePublicKey.create(
+                keyPairs.stream().map(kp -> PublicKey.fromPublicKey(kp.getPublic())).collect(toList()),
+                30);
+
+        AuthenticationKey childVaspAccountAuthKey = AuthenticationKey
+                .fromPublicKey(childVaspAccountKeyPair.getPublic());
+        AccountAddress childVaspAccountAddress = AccountAddress.fromAuthenticationKey(childVaspAccountAuthKey);
+
+        logger.info("Child vasp authentication key: {} address: {}", childVaspAccountAuthKey, childVaspAccountAddress);
+
+        AccountAddressArgument childAccountArgument = new AccountAddressArgument(childVaspAccountAddress);
+        U8VectorArgument authKeyPrefixArgument = new U8VectorArgument(childVaspAccountAuthKey.prefix());
+        BoolArgument createAllCurrenciesArgument = new BoolArgument(false);
+        U64Argument initialBalanceArgument = new U64Argument(0);
+
+        int sequenceNumber = 0;
+        Transaction transaction = ImmutableTransaction.builder()
+                .sequenceNumber(sequenceNumber)
+                .maxGasAmount(640000)
+                .gasUnitPrice(1)
+                .gasCurrencyCode("LBR")
+                .senderAccount(AccountAddress
+                        .fromAuthenticationKey(AuthenticationKey.fromMultiSignaturePublicKey(multiPubKey)))
+                .expirationTime(Instant.now().getEpochSecond() + 60)
+                .payload(ImmutableScript.builder()
+                        .typeArguments(Arrays.asList(new LbrTypeTag()))
+                        .code(Move.createChildVaspAccount())
+                        .addArguments(childAccountArgument, authKeyPrefixArgument, createAllCurrenciesArgument,
+                                initialBalanceArgument)
+                        .build())
+                .build();
+
+        Signature signature = createSignature(keyPairs, transaction);
+
+        SignedTransaction signedTransaction = ImmutableSignedTransaction.builder()
+                .authenticator(ImmutableTransactionAuthenticatorMultiEd25519.builder()
+                        .publicKey(multiPubKey)
+                        .signature(signature)
+                        .build())
+                .transaction(transaction)
+                .build();
+
+        client.submit(signedTransaction);
+        Wait.until(transactionFound(
+                AccountAddress.fromAuthenticationKey(AuthenticationKey.fromMultiSignaturePublicKey(multiPubKey)),
+                sequenceNumber, client));
     }
 
     private List<KeyPair> generateKeyPairs(int amount) {
