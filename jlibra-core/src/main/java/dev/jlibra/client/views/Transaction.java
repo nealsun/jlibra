@@ -13,6 +13,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(as = ImmutableTransaction.class)
 public interface Transaction {
 
+    @JsonProperty("hash")
+    String hash();
+
     @JsonProperty("gas_used")
     Long gasUsed();
 

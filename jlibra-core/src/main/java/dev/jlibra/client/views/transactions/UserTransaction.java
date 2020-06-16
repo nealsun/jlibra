@@ -16,6 +16,9 @@ public interface UserTransaction extends TransactionData {
     @JsonProperty("gas_unit_price")
     Long gasUnitPrice();
 
+    @JsonProperty("gas_currency")
+    String gasCurrency();
+
     @JsonProperty("max_gas_amount")
     Long maxGasAmount();
 

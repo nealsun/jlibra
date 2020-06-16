@@ -12,8 +12,8 @@ public interface PeerToPeerTransactionScript extends Script {
     @JsonProperty("amount")
     Long amount();
 
-    @JsonProperty("auth_key_prefix")
-    String authKeyPrefix();
+    @JsonProperty("currency")
+    String currency();
 
     @JsonProperty("metadata")
     String metadata();
