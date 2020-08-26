@@ -21,10 +21,6 @@ public class Move {
         return readMoveScriptBytes("/move/create_child_vasp_account.mv");
     }
 
-    public static ByteSequence createAccountAsBytes() {
-        return readMoveScriptBytes("/move/create_account.mv");
-    }
-
     private static ByteSequence readMoveScriptBytes(String fileName) {
         try {
             return ByteArray.from(streamToByteArray(Move.class.getResourceAsStream(fileName)));
