@@ -1,10 +1,11 @@
 package dev.jlibra.integrationtest;
 
-import static dev.jlibra.poller.Conditions.accountExists;
+import static dev.jlibra.poller.Conditions.accountHasPositiveBalance;
 import static dev.jlibra.poller.Conditions.transactionFound;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -13,12 +14,11 @@ import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +32,14 @@ import dev.jlibra.faucet.Faucet;
 import dev.jlibra.move.Move;
 import dev.jlibra.poller.Wait;
 import dev.jlibra.serialization.ByteArray;
+import dev.jlibra.transaction.ChainId;
 import dev.jlibra.transaction.ImmutableScript;
 import dev.jlibra.transaction.ImmutableSignedTransaction;
 import dev.jlibra.transaction.ImmutableTransaction;
 import dev.jlibra.transaction.ImmutableTransactionAuthenticatorMultiEd25519;
-import dev.jlibra.transaction.LbrTypeTag;
 import dev.jlibra.transaction.Signature;
 import dev.jlibra.transaction.SignedTransaction;
+import dev.jlibra.transaction.Struct;
 import dev.jlibra.transaction.Transaction;
 import dev.jlibra.transaction.argument.AccountAddressArgument;
 import dev.jlibra.transaction.argument.BoolArgument;
@@ -48,13 +49,16 @@ import dev.jlibra.transaction.argument.U8VectorArgument;
 public class MultisigTransactionTest {
 
     private static final Logger logger = LoggerFactory.getLogger(MultisigTransactionTest.class);
+
+    private static final String CURRENCY = "LBR";
+
     private LibraClient client;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Security.addProvider(new BouncyCastleProvider());
         client = LibraClient.builder()
-                .withUrl("http://client.testnet.libra.org/")
+                .withUrl("https://client.testnet.libra.org/v1/")
                 .build();
     }
 
@@ -71,8 +75,8 @@ public class MultisigTransactionTest {
 
         AuthenticationKey authenticationKey = AuthenticationKey.fromMultiSignaturePublicKey(multiPubKey);
         AccountAddress accountAddress = AccountAddress.fromAuthenticationKey(authenticationKey);
-        faucet.mint(authenticationKey, 10 * 1_000_000, "LBR");
-        Wait.until(accountExists(accountAddress, client));
+        faucet.mint(authenticationKey, 10 * 1_000_000, CURRENCY);
+        Wait.until(accountHasPositiveBalance(accountAddress, client));
 
         // target account
         KeyPair targetAccount = generateKeyPairs(1).get(0);
@@ -99,15 +103,16 @@ public class MultisigTransactionTest {
         Transaction transaction = ImmutableTransaction.builder()
                 .sequenceNumber(sequenceNumber)
                 .maxGasAmount(2_000_000)
-                .gasCurrencyCode("LBR")
+                .gasCurrencyCode(CURRENCY)
                 .gasUnitPrice(1)
-                .senderAccount(accountAddress)
-                .expirationTime(Instant.now().getEpochSecond() + 60)
+                .sender(accountAddress)
+                .expirationTimestampSecs(Instant.now().getEpochSecond() + 60)
                 .payload(ImmutableScript.builder()
                         .code(Move.peerToPeerTransferWithMetadata())
-                        .typeArguments(Arrays.asList(new LbrTypeTag()))
+                        .typeArguments(asList(Struct.typeTagForCurrency(CURRENCY)))
                         .addArguments(addressArgument, amountArgument, metadataArgument, signatureArgument)
                         .build())
+                .chainId(ChainId.TESTNET)
                 .build();
 
         Signature signature = createSignature(keyPairs, transaction);
@@ -125,7 +130,7 @@ public class MultisigTransactionTest {
         Wait.until(transactionFound(accountAddress, sequenceNumber, client));
 
         Account targetAccountState = client
-                .getAccountState(AccountAddress.fromAuthenticationKey(authenticationKeyTarget));
+                .getAccount(AccountAddress.fromAuthenticationKey(authenticationKeyTarget));
 
         assertThat(targetAccountState.balances().get(0).amount(), is(transferAmount));
     }
@@ -168,16 +173,17 @@ public class MultisigTransactionTest {
                 .sequenceNumber(sequenceNumber)
                 .maxGasAmount(640000)
                 .gasUnitPrice(1)
-                .gasCurrencyCode("LBR")
-                .senderAccount(AccountAddress
+                .gasCurrencyCode(CURRENCY)
+                .sender(AccountAddress
                         .fromAuthenticationKey(AuthenticationKey.fromMultiSignaturePublicKey(multiPubKey)))
-                .expirationTime(Instant.now().getEpochSecond() + 60)
+                .expirationTimestampSecs(Instant.now().getEpochSecond() + 60)
                 .payload(ImmutableScript.builder()
-                        .typeArguments(Arrays.asList(new LbrTypeTag()))
+                        .typeArguments(asList(Struct.typeTagForCurrency(CURRENCY)))
                         .code(Move.createChildVaspAccount())
                         .addArguments(childAccountArgument, authKeyPrefixArgument, createAllCurrenciesArgument,
                                 initialBalanceArgument)
                         .build())
+                .chainId(ChainId.TESTNET)
                 .build();
 
         Signature signature = createSignature(keyPairs, transaction);

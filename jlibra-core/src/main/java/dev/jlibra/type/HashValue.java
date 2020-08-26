@@ -1,7 +1,6 @@
 package dev.jlibra.type;
 
 import dev.jlibra.serialization.ByteArray;
-import dev.jlibra.serialization.ByteSequence;
 import dev.jlibra.serialization.Deserialization;
 import dev.jlibra.serialization.lcs.LCS;
 import org.immutables.value.Value;

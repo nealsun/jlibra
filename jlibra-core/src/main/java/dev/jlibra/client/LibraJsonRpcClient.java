@@ -11,15 +11,18 @@ import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcMethod;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcOptional;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcParam;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcService;
+
 import dev.jlibra.client.views.*;
+import dev.jlibra.client.views.event.Event;
+import dev.jlibra.client.views.transaction.Transaction;
 
 @JsonRpcService
 @JsonRpcId(SecureRandomStringIdGenerator.class)
 @JsonRpcParams(ARRAY)
 public interface LibraJsonRpcClient {
 
-    @JsonRpcMethod("get_account_state")
-    Account getAccountState(@JsonRpcParam("address") String address);
+    @JsonRpcMethod("get_account")
+    Account getAccount(@JsonRpcParam("address") String address);
 
     @JsonRpcMethod("get_account_state_with_proof")
     AccountStateWithProofView getAccountStateWithProof(@JsonRpcParam("address") String address,
@@ -31,17 +34,23 @@ public interface LibraJsonRpcClient {
 
     @JsonRpcMethod("get_transactions")
     List<Transaction> getTransactions(@JsonRpcParam("version") long version, @JsonRpcParam("limit") long limit,
-            @JsonRpcParam("include_events") boolean includeEvents);
+                                      @JsonRpcParam("include_events") boolean includeEvents);
+
+    @JsonRpcMethod("get_account_transactions")
+    List<Transaction> getAccountTransactions(@JsonRpcParam("addresss") String address,
+                                             @JsonRpcParam("start") long start,
+                                             @JsonRpcParam("limit") long limit,
+                                             @JsonRpcParam("include_events") boolean includeEvents);
 
     @JsonRpcMethod("get_account_transaction")
     Transaction getAccountTransaction(@JsonRpcParam("addresss") String address,
-            @JsonRpcParam("sequence_number") long sequenceNumber,
-            @JsonRpcParam("include_events") boolean includeEvents);
+                                      @JsonRpcParam("sequence_number") long sequenceNumber,
+                                      @JsonRpcParam("include_events") boolean includeEvents);
 
     @JsonRpcMethod("get_events")
     List<Event> getEvents(@JsonRpcParam("event_key") String eventKey,
-            @JsonRpcParam("start") long start,
-            @JsonRpcParam("limit") long limit);
+                          @JsonRpcParam("start") long start,
+                          @JsonRpcParam("limit") long limit);
 
     @JsonRpcMethod("get_state_proof")
     StateProof getStateProof(@JsonRpcParam("know_version") long knownVersion);

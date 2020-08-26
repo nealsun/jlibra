@@ -1,0 +1,51 @@
+package dev.jlibra.client.views.transaction;
+
+import org.immutables.value.Value;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+@Value.Immutable
+@JsonDeserialize(as = ImmutableUserTransaction.class)
+public interface UserTransaction extends TransactionData {
+
+    @JsonProperty("expiration_timestamp_secs")
+    Long expirationTimestampSecs();
+
+    @JsonProperty("gas_unit_price")
+    Long gasUnitPrice();
+
+    @JsonProperty("gas_currency")
+    String gasCurrency();
+
+    @JsonProperty("max_gas_amount")
+    Long maxGasAmount();
+
+    @JsonProperty("public_key")
+    String publicKey();
+
+    @JsonProperty("script_hash")
+    String scriptHash();
+
+    @JsonProperty("sender")
+    String sender();
+
+    @JsonProperty("sequence_number")
+    Long sequenceNumber();
+
+    @JsonProperty("signature")
+    String signature();
+
+    @JsonProperty("signature_scheme")
+    String signatureScheme();
+
+    @JsonProperty("script")
+    Script script();
+
+    @JsonProperty("chain_id")
+    Integer chainId();
+
+    @JsonProperty("script_bytes")
+    String scriptBytes();
+
+}

@@ -5,18 +5,18 @@ import org.slf4j.LoggerFactory;
 
 import dev.jlibra.AccountAddress;
 import dev.jlibra.client.LibraClient;
-import dev.jlibra.client.views.Transaction;
+import dev.jlibra.client.views.transaction.Transaction;
 
 public class GetAccountTransactionBySequenceNumberExample {
 
     private static final Logger logger = LoggerFactory.getLogger(GetAccountTransactionBySequenceNumberExample.class);
 
     public static void main(String[] args) {
-        String address = "2ab3189806488e73014e2e429e45c143";
+        String address = "330952f689e737312bbfd6c9f85ad31e";
         int sequenceNumber = 0;
 
         LibraClient client = LibraClient.builder()
-                .withUrl("http://client.testnet.libra.org/")
+                .withUrl("https://client.testnet.libra.org/v1/")
                 .build();
 
         Transaction t = client.getAccountTransaction(AccountAddress.fromHexString(address), sequenceNumber, true);

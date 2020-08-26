@@ -9,14 +9,14 @@
   <parent>
     <groupId>dev.jlibra</groupId>
     <artifactId>jlibra-parent</artifactId>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>0.12.1-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
-      <version>1.65</version>
+      <version>1.66</version>
     </dependency>
     <dependency>
       <groupId>org.immutables</groupId>
@@ -27,7 +27,7 @@
     <dependency>
       <groupId>com.github.arteam</groupId>
       <artifactId>simple-json-rpc-client</artifactId>
-      <version>1.0</version>
+      <version>1.2</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains</groupId>
@@ -57,8 +57,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

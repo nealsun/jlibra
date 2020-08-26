@@ -1,25 +1,28 @@
 package dev.jlibra.transaction;
 
 import dev.jlibra.AccountAddress;
-import dev.jlibra.serialization.lcs.LCS;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LbrStructTag implements StructTag {
+public class LbrStructTag implements Struct {
 
-    public AccountAddress getAddress() {
+    @Override
+    public AccountAddress address() {
         return AccountAddress.fromHexString("00000000000000000000000000000000");
     }
 
-    public String getModule() {
+    @Override
+    public String module() {
         return "LBR";
     }
 
-    public String getName() {
+    @Override
+    public String name() {
         return "T";
     }
 
+    @Override
     public List<TypeTag> getTypeParams() {
         return new ArrayList<>();
     }

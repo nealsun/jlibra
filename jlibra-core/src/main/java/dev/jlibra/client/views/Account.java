@@ -37,4 +37,7 @@ public interface Account {
     @JsonProperty("role")
     AccountRole role();
 
+    @JsonProperty("is_frozen")
+    Boolean isFrozen();
+
 }

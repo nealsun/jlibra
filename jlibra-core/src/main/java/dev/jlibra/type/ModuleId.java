@@ -3,14 +3,9 @@ package dev.jlibra.type;
 import dev.jlibra.AccountAddress;
 import dev.jlibra.Hash;
 import dev.jlibra.serialization.ByteArray;
-import dev.jlibra.serialization.ByteSequence;
-import dev.jlibra.serialization.Serializer;
 import dev.jlibra.serialization.lcs.LCS;
 import dev.jlibra.serialization.lcs.LCSSerializer;
-import dev.jlibra.transaction.Transaction;
 import org.immutables.value.Value;
-
-import java.util.ArrayList;
 
 @Value.Immutable
 @LCS.Structure

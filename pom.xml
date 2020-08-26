@@ -5,7 +5,7 @@
 
   <groupId>dev.jlibra</groupId>
   <artifactId>jlibra-parent</artifactId>
-  <version>0.9.1-SNAPSHOT</version>
+  <version>0.12.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>jlibra</name>
@@ -90,9 +90,10 @@
         <version>${slf4j.version}</version>
       </dependency>
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.12</version>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>5.6.2</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.hamcrest</groupId>
@@ -150,7 +151,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.1.1</version>
+            <version>3.2.0</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -159,6 +160,9 @@
                 </goals>
               </execution>
             </executions>
+            <configuration>
+            <sourcepath>src/main/java;target/generated-sources/annotations</sourcepath>
+            </configuration>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>

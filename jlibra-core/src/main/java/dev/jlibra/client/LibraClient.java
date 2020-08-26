@@ -2,7 +2,6 @@ package dev.jlibra.client;
 
 import java.util.List;
 
-import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcParam;
 import dev.jlibra.client.views.*;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -13,7 +12,8 @@ import com.github.arteam.simplejsonrpc.client.exception.JsonRpcException;
 
 import dev.jlibra.AccountAddress;
 import dev.jlibra.LibraRuntimeException;
-
+import dev.jlibra.client.views.event.Event;
+import dev.jlibra.client.views.transaction.Transaction;
 import dev.jlibra.serialization.lcs.LCSSerializer;
 import dev.jlibra.transaction.SignedTransaction;
 
@@ -29,9 +29,9 @@ public class LibraClient {
         return new LibraClientBuilder();
     }
 
-    public Account getAccountState(AccountAddress accountAddress) {
+    public Account getAccount(AccountAddress accountAddress) {
         try {
-            return libraJsonRpcClient.getAccountState(Hex.toHexString(accountAddress.toArray()));
+            return libraJsonRpcClient.getAccount(Hex.toHexString(accountAddress.toArray()));
         } catch (JsonRpcException e) {
             throw new LibraServerErrorException(e.getErrorMessage().getCode(), e.getErrorMessage().getMessage());
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class LibraClient {
     }
 
     public List<Transaction> getTransactions(long version, long limit,
-            boolean includeEvents) {
+                                             boolean includeEvents) {
         try {
             return libraJsonRpcClient.getTransactions(version, limit, includeEvents);
         } catch (JsonRpcException e) {
@@ -73,8 +73,8 @@ public class LibraClient {
     }
 
     public Transaction getAccountTransaction(AccountAddress accountAddress,
-            long sequenceNumber,
-            boolean includeEvents) {
+                                             long sequenceNumber,
+                                             boolean includeEvents) {
         try {
             return libraJsonRpcClient.getAccountTransaction(Hex.toHexString(accountAddress.toArray()), sequenceNumber,
                     includeEvents);
@@ -85,9 +85,23 @@ public class LibraClient {
         }
     }
 
+    public List<Transaction> getAccountTransactions(AccountAddress accountAddress,
+                                                    long start,
+                                                    long limit,
+                                                    boolean includeEvents) {
+        try {
+            return libraJsonRpcClient.getAccountTransactions(Hex.toHexString(accountAddress.toArray()), start, limit,
+                    includeEvents);
+        } catch (JsonRpcException e) {
+            throw new LibraServerErrorException(e.getErrorMessage().getCode(), e.getErrorMessage().getMessage());
+        } catch (Exception e) {
+            throw new LibraRuntimeException("getAccountTransactions failed", e);
+        }
+    }
+
     public List<Event> getEvents(String eventKey,
-            long start,
-            long limit) {
+                                 long start,
+                                 long limit) {
         try {
             return libraJsonRpcClient.getEvents(eventKey, start, limit);
         } catch (JsonRpcException e) {
